@@ -175,11 +175,11 @@ def main():
 #     main()
 
 # 3: Start the sweep
-SWEEP_NAIVE=True #False
+SWEEP_NAIVE=False
 if SWEEP_NAIVE:
     sweep_id=wandb.sweep(sweep=config.CONFIG_SWEEP, project=config.WANDB_PROJECT)
 else:
-    sweep_id="lsn8vys0" #
+    sweep_id="kcxxrqaz" #
     sweep_id = f"{config.ENTITY}/{config.WANDB_PROJECT}/{sweep_id}"#wandb.sweep(sweep=config.CONFIG_SWEEP, project=config.WANDB_PROJECT)
 print(sweep_id)
 wandb.agent(sweep_id, function=main, count=config.N_SWEEP)
