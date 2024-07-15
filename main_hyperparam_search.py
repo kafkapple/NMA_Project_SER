@@ -38,7 +38,7 @@ def main():
     wandb.init(
         id=id_wandb,
         project=config.WANDB_PROJECT,
-        name=config.WANDB_NAME, #
+        #name=config.WANDB_NAME, #
         config=config.CONFIG_DEFAULTS,
         resume=True
     )
@@ -175,7 +175,7 @@ def main():
 #     main()
 
 # 3: Start the sweep
-SWEEP_NAIVE=False
+SWEEP_NAIVE=True #False
 if SWEEP_NAIVE:
     sweep_id=wandb.sweep(sweep=config.CONFIG_SWEEP, project=config.WANDB_PROJECT)
 else:
