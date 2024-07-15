@@ -38,7 +38,7 @@ def main():
     wandb.init(
         id=id_wandb,
         project=config.WANDB_PROJECT,
-        name=config.WANDB_NAME,
+        name=config.WANDB_NAME, #
         config=config.CONFIG_DEFAULTS,
         resume=True
     )
@@ -82,7 +82,6 @@ def main():
         
     # wandb setup
     wandb.config.update({"initial_epoch": initial_epoch}, allow_val_change=True)
-    
     wandb.watch(model, log='all')
     ###### Train model
     print(f'\n##### Training starts. Initial epoch:{initial_epoch}, Total number of epoch: {config.NUM_EPOCHS}')
@@ -92,7 +91,7 @@ def main():
         train_loss, train_accuracy, train_precision, train_recall, train_f1 = train_epoch(model, train_loader, criterion, optimizer, device)
         val_loss, val_accuracy, val_precision, val_recall, val_f1, val_labels, val_preds = evaluate_model(model, val_loader, criterion, device)
         
-        print(f"Epoch [{epoch}/{initial_epoch}-{initial_epoch+config.NUM_EPOCHS-1}]")
+        print(f"Epoch [{epoch}/{initial_epoch}~{initial_epoch+config.NUM_EPOCHS-1}]")
         print(f"Train - Loss: {train_loss:.4f}, Accuracy: {train_accuracy:.4f}, F1: {train_f1:.4f}")
         print(f"Val - Loss: {val_loss:.4f}, Accuracy: {val_accuracy:.4f}, F1: {val_f1:.4f}")
         
@@ -156,11 +155,6 @@ def main():
 
     # Visualizations
     fig_cm = plot_confusion_matrix(test_labels, test_preds, config.LABELS_EMOTION)
-    # wandb.log({
-    #     "test":{
-    #         "confusion_matrix": wandb.Image(fig_cm)
-    #         }})
-    
     embeddings, labels = extract_embeddings(model, test_loader, device)
     labels = [config.LABELS_EMOTION[val] for val in labels]
     fig_embedding=visualize_embeddings(embeddings, labels, method='tsne')
@@ -172,7 +166,7 @@ def main():
         "test":{
             "confusion_matrix": wandb.Image(fig_cm),
             "embeddings": wandb.Image(fig_embedding)
-     #       "rsa": wandb.Image(fig_rsa)
+           # "rsa": wandb.Image(fig_rsa)
             }})
     plt.close()
     #wandb.finish()
@@ -181,6 +175,12 @@ def main():
 #     main()
 
 # 3: Start the sweep
-sweep_id = wandb.sweep(sweep=config.CONFIG_SWEEP, project=config.WANDB_PROJECT)
+SWEEP_NAIVE=True
+if SWEEP_NAIVE:
+    sweep_id=wandb.sweep(sweep=config.CONFIG_SWEEP, project=config.WANDB_PROJECT)
+else:
+    sweep_id="wxk2albc" #
+    sweep_id = f"{config.ENTITY}/{config.WANDB_PROJECT}/{sweep_id}"#wandb.sweep(sweep=config.CONFIG_SWEEP, project=config.WANDB_PROJECT)
+print(sweep_id)
 wandb.agent(sweep_id, function=main, count=config.N_SWEEP)
 wandb.finish()

@@ -3,7 +3,7 @@ import os
 class Config:
     
     SEED = 2024
-    NUM_EPOCHS = 2
+    NUM_EPOCHS = 5
     
     ### Hyperparam
     BATCH_SIZE = 32
@@ -15,7 +15,9 @@ class Config:
     
     N_STEP_FIG = 2 # log visualization per step
     
-    BASE_DIR = os.path.join(os.getcwd(), 'project_SER')
+    PROJECT_DIR="NMA_Project_SER"
+    
+    BASE_DIR = os.path.join(os.getcwd(), PROJECT_DIR)
     DATA_DIR = os.path.join(BASE_DIR, 'data')
     DATA_NAME= "RAVDESS_audio_speech"
     MODEL_NAME=f"wav2vec_{MODEL}_sweep"#'wav2vec_v3_1'
@@ -29,16 +31,18 @@ class Config:
         4: 'angry', 5: 'fearful', 6: 'disgust', 7: 'surprised'
     }
     
-    #### Wandbb config
-    WANDB_PROJECT = "project_ser_sweep_v0"
+    ####### Wandb config
+    WANDB_PROJECT = f"{PROJECT_DIR}_sweep_v1_2"
+    ENTITY="biasdrive-neuromatch"
     WANDB_NAME = MODEL_NAME
     # 2: Define the search space
-    N_SWEEP=10
+    
+    N_SWEEP=30
     CONFIG_SWEEP = {
         "method": "bayes",
         "metric": {"goal": "minimize", "name": "loss"},
         "parameters": {
-            "BATCH_SIZE": {"values": [32, 64, 128]},
+            "BATCH_SIZE": {"values": [32, 64]},
             "MODEL":{"values":['v1', 'v2']},
             "lr": {"values": [0.0005, 0.001, 0.005]},
             "DROPOUT_RATE": {"values": [0.4, 0.5, 0.6]},
@@ -49,10 +53,10 @@ class Config:
     "resume":"allow",
     "architecture": f"{MODEL_NAME}",
     "dataset": f"{DATA_NAME}",
-    "batch_size": BATCH_SIZE,
+    #"batch_size": BATCH_SIZE,
     "epochs": NUM_EPOCHS,
     # "initial_epoch": initial_epoch,
-    "BATCH_SIZE": 32,
+    "BATCH_SIZE": BATCH_SIZE,
     "MODEL": MODEL,
     "lr": lr,
     "DROPOUT_RATE": DROPOUT_RATE,

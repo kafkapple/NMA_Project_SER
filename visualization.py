@@ -98,15 +98,20 @@ def perform_rsa(model, data_loader, device):
 
     corr_matrix = np.corrcoef(representations)
 
-    # corr betw labels
+    # Calculate label correlation matrix
     label_matrix = np.equal.outer(labels, labels).astype(int)
 
-    # RSA correlation matrix
+    # Calculate RSA correlation
     rsa_corr, _ = spearmanr(corr_matrix.flatten(), label_matrix.flatten())
 
-    print(f"RSA correlation: {rsa_corr}")
-    fig = plt.figure(figsize=(10, 8))
-    sns.heatmap(corr_matrix, cmap='coolwarm')
-    plt.title("Representation Correlation Matrix")
-    #plt.show()
+    # Plot the representation correlation matrix and the label correlation matrix
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 8))
+
+    sns.heatmap(corr_matrix, cmap='coolwarm', ax=ax1)
+    ax1.set_title("Representation Correlation Matrix")
+
+    sns.heatmap(label_matrix, cmap='coolwarm', ax=ax2)
+    ax2.set_title("Label Correlation Matrix")
+
+    plt.suptitle(f"RSA Correlation: {rsa_corr:.2f}", fontsize=16)
     return fig
