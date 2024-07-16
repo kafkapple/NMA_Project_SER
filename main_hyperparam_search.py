@@ -20,7 +20,7 @@ def set_seed(seed):
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
         #print(torch.cuda.is_available()) 
-        #print(torch.cuda.current_device()) 
+        print(torch.cuda.current_device()) 
         print(f'\n##### GPU verified. {torch.cuda.get_device_name(0)}')
 
 def main():
@@ -84,7 +84,7 @@ def main():
     wandb.config.update({"initial_epoch": initial_epoch}, allow_val_change=True)
     wandb.watch(model, log='all')
     ###### Train model
-    print(f'\n##### Training starts. Initial epoch:{initial_epoch}, Total number of epoch: {config.NUM_EPOCHS}')
+    print(f'\n##### Training starts.\nInitial epoch:{initial_epoch}\nTotal number of epoch: {config.NUM_EPOCHS}')
     best_val_accuracy = 0
     
     for epoch in range(initial_epoch, initial_epoch+config.NUM_EPOCHS):#range(num_epochs):
@@ -179,15 +179,29 @@ def main():
 
 # 3: Start the sweep
 if __name__ == "__main__":
+
+    # CUDA 사용 가능 여부 확인
+    if torch.cuda.is_available():
+        print("CUDA is available. 🚀")
+        # 사용 가능한 GPU 수
+        num_gpus = torch.cuda.device_count()
+        print(f"Number of GPUs available: {num_gpus}")
+        # 기본 GPU 정보
+        for i in range(num_gpus):
+            print(f"GPU {i}: Name: {torch.cuda.get_device_name(i)}")
+    else:
+        print("CUDA is not available.")
     
     #### 
     SWEEP_NAIVE=False
     
     if SWEEP_NAIVE:
         sweep_id=wandb.sweep(sweep=config.CONFIG_SWEEP, project=config.WANDB_PROJECT)
+        print(f'\nSweep id: {sweep_id}\n')
     else:
         sweep_id="8lad6k0u" #
         sweep_id = f"{config.ENTITY}/{config.WANDB_PROJECT}/{sweep_id}"#wandb.sweep(sweep=config.CONFIG_SWEEP, project=config.WANDB_PROJECT)
+        print(f"\nSweep id with entity, project: {sweep_id}")
     print(sweep_id)
     wandb.agent(sweep_id, function=main, count=config.N_SWEEP)
     wandb.finish()

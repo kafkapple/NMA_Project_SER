@@ -27,7 +27,7 @@ def download_ravdess():
             print("Failed to download the dataset.")
             return config.DATA_DIR, False
     else:
-        print("Dataset already exists. Skipping download.")
+        print("Dataset already exists. Skipping download.\n")
 
     extracted_path = os.path.join(config.DATA_DIR, "RAVDESS_speech")
     if not os.path.exists(extracted_path):
@@ -39,7 +39,7 @@ def download_ravdess():
             print(f"Extraction failed: {e}")
             return config.DATA_DIR, False
     else:
-        print("Dataset already extracted.")
+        print("Dataset already extracted.\n")
     return extracted_path, True
 
 def preprocess_data(data_dir):
