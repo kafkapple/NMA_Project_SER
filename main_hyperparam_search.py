@@ -171,6 +171,7 @@ def main():
                 "embeddings": wandb.Image(fig_embedding)
             # "rsa": wandb.Image(fig_rsa)
             }},step = epoch)
+    #wandb.run.summary['best_accuracy']=
     plt.close()
     #wandb.finish()
 
@@ -183,7 +184,7 @@ if __name__ == "__main__":
     if SWEEP_NAIVE:
         sweep_id=wandb.sweep(sweep=config.CONFIG_SWEEP, project=config.WANDB_PROJECT)
     else:
-        sweep_id="kcxxrqaz" #
+        sweep_id="zc9t54d2" #
         sweep_id = f"{config.ENTITY}/{config.WANDB_PROJECT}/{sweep_id}"#wandb.sweep(sweep=config.CONFIG_SWEEP, project=config.WANDB_PROJECT)
     print(sweep_id)
     wandb.agent(sweep_id, function=main, count=config.N_SWEEP)

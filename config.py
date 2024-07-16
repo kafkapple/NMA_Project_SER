@@ -32,7 +32,7 @@ class Config:
     }
     
     ####### Wandb config
-    WANDB_PROJECT = f"{PROJECT_DIR}_sweep_v1_e5"
+    WANDB_PROJECT = f"{PROJECT_DIR}_sweep_v1_e5_val"
     ENTITY="biasdrive-neuromatch"
     WANDB_NAME = MODEL_NAME
     # 2: Define the search space
