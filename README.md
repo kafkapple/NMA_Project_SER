@@ -2,6 +2,7 @@
 
 # 1. Run in colab environment
 !pip install transformers torchaudio librosa -q
+
 !pip install SpeechRecognition -q
 !pip install librosa gensim -q
 !pip install tqdm -q
