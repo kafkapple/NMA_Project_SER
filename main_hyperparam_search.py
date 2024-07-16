@@ -178,7 +178,6 @@ def main():
     plt.close()
 # if __name__ == "__main__":
 #     main()
-
 # 3: Start the sweep
 if __name__ == "__main__":
     matplotlib.use('agg')
