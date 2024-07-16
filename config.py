@@ -43,10 +43,10 @@ class Config:
         "method": "bayes",
         "metric": {"goal": "minimize", "name": "val.loss"},
         "parameters": {
-            "BATCH_SIZE": {"values": [32, 64]},
+            "BATCH_SIZE": {"values": [16, 32, 64]},
             "MODEL":{"values":['v1', 'v2']},
-            "lr": {"values": [0.0005, 0.001, 0.005]},
-            "DROPOUT_RATE": {"values": [0.4, 0.5, 0.6]},
+            "lr": {"values": [0.0001, 0.0005, 0.001, 0.005, 0.01]},
+            "DROPOUT_RATE": {"values": [0.3, 0.4, 0.5]},
             "activation":{"values":['relu', 'leaky_relu', 'gelu']}
         },
     }
