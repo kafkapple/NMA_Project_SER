@@ -8,6 +8,8 @@ import wandb
 import torch
 from tqdm import tqdm
 from scipy.stats import spearmanr
+import matplotlib
+matplotlib.use('agg')
 
 def plot_confusion_matrix(labels, preds, labels_emotion, normalize=True):
     cm = confusion_matrix(labels, preds)

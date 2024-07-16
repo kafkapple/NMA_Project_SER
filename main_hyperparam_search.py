@@ -10,6 +10,8 @@ from model import EmotionRecognitionModel_v1, EmotionRecognitionModel_v2
 from train_utils import train_model, train_epoch, evaluate_model, load_checkpoint
 from visualization import plot_confusion_matrix, visualize_embeddings, extract_embeddings, perform_rsa#, explain_predictions, 
 import matplotlib.pyplot as plt
+import matplotlib
+
 
 def set_seed(seed):
     random.seed(seed)
@@ -179,12 +181,18 @@ def main():
 
 # 3: Start the sweep
 if __name__ == "__main__":
-    
+    matplotlib.use('agg')
+    print('\n######\n',config.WANDB_PROJECT)
     #### 
+    # sweeps = wandb.Api().project(config.WANDB_PROJECT).sweeps()
+    # print('\n######\n',sweeps)
     SWEEP_NAIVE=False
     
     if SWEEP_NAIVE:
+        #print(config.CONFIG_SWEEP, config.WANDB_PROJECT)
+
         sweep_id=wandb.sweep(sweep=config.CONFIG_SWEEP, project=config.WANDB_PROJECT)
+        print('###\n',type(sweep_id),sweep_id)
     else:
         sweep_id="8lad6k0u" #
         sweep_id = f"{config.ENTITY}/{config.WANDB_PROJECT}/{sweep_id}"#wandb.sweep(sweep=config.CONFIG_SWEEP, project=config.WANDB_PROJECT)
