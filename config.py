@@ -3,7 +3,7 @@ import os
 class Config:
     
     NUM_EPOCHS = 5 # number of epochs per 1 training (swwep)
-    N_SWEEP=10 # number of sweep for hyperparameter search
+    N_SWEEP=100 # number of sweep for hyperparameter search
     
     SEED = 2024 # random seed
     

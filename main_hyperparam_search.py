@@ -17,18 +17,27 @@ def set_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed) # to seed the script globally
+
+
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
         #print(torch.cuda.is_available()) 
+        print("CUDA is available. 🚀")
+        num_gpus = torch.cuda.device_count()
+        print(f"Number of GPUs available: {num_gpus}")
+        for i in range(num_gpus):
+            print(f"GPU {i}: Name: {torch.cuda.get_device_name(i)}")
         print(torch.cuda.current_device()) 
-        print(f'\n##### GPU verified. {torch.cuda.get_device_name(0)}')
+    else:
+        print("CUDA is not available.")
 
 def main():
     set_seed(config.SEED)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
+    
     # Download and preprocess data
     print('\n###### Preparing Dataset...')
     data_dir, status = download_ravdess()
@@ -65,15 +74,13 @@ def main():
         ).to(device)
     else:
         print('Model error')
-    
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=config.lr)# LEARNING_RATE)
-
     # if not os.path.exists(config.MODEL_SAVE_PATH):
     initial_epoch=1
     #id_wandb=wandb.util.generate_id()
-    print(f'No trained model.')
-    print(f'Wandb id generated: {id_wandb}')
+    # print(f'No trained model.')
+    # print(f'Wandb id generated: {id_wandb}')
     # else:
     #     print('Trained model exists.')
     #     model, optimizer, start_epoch, best_val_accuracy, id_wandb = load_checkpoint(config.CKPT_SAVE_PATH, model, optimizer, device)
@@ -148,7 +155,6 @@ def main():
         #     wandb.log({"validation":{
         #         "embeddings": wandb.Image(fig_embedding)
         #         }})
-            
     # model = train_model(model, train_loader, val_loader, initial_epoch, config.NUM_EPOCHS, criterion, optimizer, device, id_wandb)
 
     ########## Evaluate on test set
@@ -160,7 +166,6 @@ def main():
     embeddings, labels = extract_embeddings(model, test_loader, device)
     labels = [config.LABELS_EMOTION[val] for val in labels]
     fig_embedding=visualize_embeddings(embeddings, labels, method='tsne')
-    
     # explain_predictions(model, test_loader, device)
     #fig_rsa= perform_rsa(model, test_loader, device)
     wandb.log({ # logged in a nested way
@@ -179,20 +184,9 @@ def main():
 # 3: Start the sweep
 if __name__ == "__main__":
 
-    # CUDA 사용 가능 여부 확인
-    if torch.cuda.is_available():
-        print("CUDA is available. 🚀")
-        # 사용 가능한 GPU 수
-        num_gpus = torch.cuda.device_count()
-        print(f"Number of GPUs available: {num_gpus}")
-        # 기본 GPU 정보
-        for i in range(num_gpus):
-            print(f"GPU {i}: Name: {torch.cuda.get_device_name(i)}")
-    else:
-        print("CUDA is not available.")
     
     matplotlib.use('agg')
-    print('\n######\n',config.WANDB_PROJECT)
+    print('\n###########\n',config.WANDB_PROJECT)
     #### 
     # sweeps = wandb.Api().project(config.WANDB_PROJECT).sweeps()
     # print('\n######\n',sweeps)
@@ -206,7 +200,6 @@ if __name__ == "__main__":
     else:
         sweep_id="8lad6k0u" #
         sweep_id = f"{config.ENTITY}/{config.WANDB_PROJECT}/{sweep_id}"#wandb.sweep(sweep=config.CONFIG_SWEEP, project=config.WANDB_PROJECT)
-        print(f"\nResume Sweep id with entity, project: entity/project/id: {sweep_id}\n")
-    print(sweep_id)
+        print(f"\nResume Sweep: entity/project/id: {sweep_id}\n")
     wandb.agent(sweep_id, function=main, count=config.N_SWEEP)
     wandb.finish()
