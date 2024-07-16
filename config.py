@@ -2,11 +2,12 @@ import os
 
 class Config:
     
-    NUM_EPOCHS = 2
-    N_SWEEP=2
+    NUM_EPOCHS = 5 # number of epochs per 1 training (swwep)
+    N_SWEEP=10 # number of sweep for hyperparameter search
     
-    SEED = 2024
-    ### Hyperparam
+    SEED = 2024 # random seed
+    
+    ### Hyperparam - Initial default value
     BATCH_SIZE = 32
     MODEL = "v2"
     lr = 0.001
@@ -33,7 +34,7 @@ class Config:
     }
     
     ####### Wandb config
-    WANDB_PROJECT = f"{PROJECT_DIR}_sweep_v1_e5_val"
+    WANDB_PROJECT = f"{PROJECT_DIR}_sweep_together_v1_e5"
     ENTITY="biasdrive-neuromatch"
     WANDB_NAME = MODEL_NAME
     # 2: Define the search space
