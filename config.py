@@ -2,9 +2,10 @@ import os
 
 class Config:
     
-    SEED = 2024
-    NUM_EPOCHS = 5
+    NUM_EPOCHS = 2
+    N_SWEEP=2
     
+    SEED = 2024
     ### Hyperparam
     BATCH_SIZE = 32
     MODEL = "v2"
@@ -37,7 +38,6 @@ class Config:
     WANDB_NAME = MODEL_NAME
     # 2: Define the search space
     
-    N_SWEEP=30
     CONFIG_SWEEP = {
         "method": "bayes",
         "metric": {"goal": "minimize", "name": "val.loss"},

@@ -180,7 +180,7 @@ def main():
 
 # 3: Start the sweep
 if __name__ == "__main__":
-    SWEEP_NAIVE=False
+    SWEEP_NAIVE=True
     if SWEEP_NAIVE:
         sweep_id=wandb.sweep(sweep=config.CONFIG_SWEEP, project=config.WANDB_PROJECT)
     else:
