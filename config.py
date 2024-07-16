@@ -40,7 +40,7 @@ class Config:
     N_SWEEP=30
     CONFIG_SWEEP = {
         "method": "bayes",
-        "metric": {"goal": "minimize", "name": "loss"},
+        "metric": {"goal": "minimize", "name": "val.loss"},
         "parameters": {
             "BATCH_SIZE": {"values": [32, 64]},
             "MODEL":{"values":['v1', 'v2']},

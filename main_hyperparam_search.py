@@ -120,7 +120,7 @@ def main():
                     "f1": train_f1
                     },
             
-            "validation":{
+            "val":{
                         "loss": val_loss,
                         "accuracy": val_accuracy,
                         "precision": val_precision,
@@ -129,7 +129,7 @@ def main():
                         # "confusion_matrix": wandb.Image(fig_cm),
                         # "embeddings": wandb.Image(fig_embedding)
                         }
-            })
+            },step=epoch)
         # if epoch % config.N_STEP_FIG ==0:
         #     print('Logging visualizations (validation data)...')
         #     # Visualizations-
@@ -161,13 +161,16 @@ def main():
     
     # explain_predictions(model, test_loader, device)
     #fig_rsa= perform_rsa(model, test_loader, device)
-    wandb.log({
-        "loss":test_loss,
-        "test":{
-            "confusion_matrix": wandb.Image(fig_cm),
-            "embeddings": wandb.Image(fig_embedding)
-           # "rsa": wandb.Image(fig_rsa)
-            }})
+    wandb.log({ # logged in a nested way
+        "test":{"loss": test_loss,
+                "accuracy": test_accuracy,
+                "precision": test_precision,
+                "recall": test_recall,
+                "f1": test_f1,
+                "confusion_matrix": wandb.Image(fig_cm),
+                "embeddings": wandb.Image(fig_embedding)
+            # "rsa": wandb.Image(fig_rsa)
+            }},step = epoch)
     plt.close()
     #wandb.finish()
 
