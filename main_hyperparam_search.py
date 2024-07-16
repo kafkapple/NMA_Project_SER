@@ -151,7 +151,7 @@ def main():
 
     ########## Evaluate on test set
     test_loss, test_accuracy, test_precision, test_recall, test_f1, test_labels, test_preds = evaluate_model(model, test_loader, criterion, device)
-    print(f"\n##### Training finishied.\nTest Results - Accuracy: {test_accuracy:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}\n")
+    print(f"\n##### Training finishied.\nTest Results - Loss: {test_loss:.4f}, Accuracy: {test_accuracy:.4f}, Precision: {test_precision:.4f}, Recall: {test_recall:.4f}, F1: {test_f1:.4f}\n")
 
     # Visualizations
     fig_cm = plot_confusion_matrix(test_labels, test_preds, config.LABELS_EMOTION)
@@ -171,11 +171,9 @@ def main():
                 "confusion_matrix": wandb.Image(fig_cm),
                 "embeddings": wandb.Image(fig_embedding)
             # "rsa": wandb.Image(fig_rsa)
-            }},step = epoch)
+            }})
     #wandb.run.summary['best_accuracy']=
     plt.close()
-    #wandb.finish()
-
 # if __name__ == "__main__":
 #     main()
 
@@ -184,10 +182,11 @@ if __name__ == "__main__":
     
     #### 
     SWEEP_NAIVE=False
+    
     if SWEEP_NAIVE:
         sweep_id=wandb.sweep(sweep=config.CONFIG_SWEEP, project=config.WANDB_PROJECT)
     else:
-        sweep_id="8vqa17sb" #
+        sweep_id="8lad6k0u" #
         sweep_id = f"{config.ENTITY}/{config.WANDB_PROJECT}/{sweep_id}"#wandb.sweep(sweep=config.CONFIG_SWEEP, project=config.WANDB_PROJECT)
     print(sweep_id)
     wandb.agent(sweep_id, function=main, count=config.N_SWEEP)
