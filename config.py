@@ -19,8 +19,9 @@ class Config:
     N_STEP_FIG = 2 # log visualization per step
     
     PROJECT_DIR="NMA_Project_SER"
+    parent_dir=os.path.dirname(os.getcwd())
     
-    BASE_DIR = os.path.join(os.getcwd(), PROJECT_DIR)
+    BASE_DIR = os.path.join(parent_dir, PROJECT_DIR)
     DATA_DIR = os.path.join(BASE_DIR, 'data')
     DATA_NAME= "RAVDESS_audio_speech"
     MODEL_NAME=f"wav2vec_{MODEL}_v4"#'wav2vec_v3_1'

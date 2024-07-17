@@ -60,17 +60,26 @@ def run_training(num_epochs, is_sweep=False):
     data_dir, status = download_ravdess()
     if not status:
         raise Exception("Failed to download or extract the dataset. Terminating execution.")
-      
+    #### Model loading or start new
     if os.path.exists(config.CKPT_SAVE_PATH):
         user_input = input("Found existing model. Continue training? (y/n): ").lower()
         if user_input == 'y':
-            model, optimizer, initial_epoch, best_val_accuracy, _ = load_checkpoint(config.CKPT_SAVE_PATH, model, optimizer, device)
-            print(f"Resuming training from epoch {initial_epoch}")
+            model, optimizer, initial_epoch, best_val_accuracy, id_wandb = load_checkpoint(config.CKPT_SAVE_PATH, model, optimizer, device)
+            print(f"Resuming training from epoch {initial_epoch}. Best val accuracy: {best_val_accuracy:.3f}")
         else:
             config.MODEL_SAVE_PATH = get_new_model_path(config.MODEL_SAVE_PATH)
             config.CKPT_SAVE_PATH = get_new_model_path(config.CKPT_SAVE_PATH)
             print(f"Starting new training. New model will be saved as {config.MODEL_SAVE_PATH}")
+            initial_epoch = 1
+            id_wandb=wandb.util.generate_id()
+            print(f'Wandb id generated: {id_wandb}')
+    else:
+        print('No trained data.')
+        initial_epoch = 1
+        id_wandb=wandb.util.generate_id()
+        print(f'Wandb id generated: {id_wandb}')
 
+#### Sweep or not
     if is_sweep:
         wandb.init(config=config.CONFIG_DEFAULTS, resume=False)
     else:
@@ -96,8 +105,6 @@ def run_training(num_epochs, is_sweep=False):
       print('err optimizer')
       
     criterion = torch.nn.CrossEntropyLoss()
-    
-    initial_epoch = 1
     best_val_accuracy = 0.0
     best_val_loss = 0.0
 
@@ -112,7 +119,6 @@ def run_training(num_epochs, is_sweep=False):
         print(f"Train - Loss: {train_loss:.4f}, Accuracy: {train_accuracy:.4f}, F1: {train_f1:.4f}")
         print(f"Val - Loss: {val_loss:.4f}, Accuracy: {val_accuracy:.4f}, F1: {val_f1:.4f}")
 
-                # 에폭 종료 시간 및 소요 시간 계산
         epoch_end_time = time.time()
         epoch_duration = epoch_end_time - epoch_start_time
 
@@ -123,10 +129,29 @@ def run_training(num_epochs, is_sweep=False):
             best_val_loss = val_loss
             torch.save(model.state_dict(), config.MODEL_SAVE_PATH)
             print(f"\nNew Best val accuracy found. Model saved to {config.MODEL_SAVE_PATH}")
-
+        # save Checkpoint
+        ckpt = {
+            'epoch': epoch,
+            'model_state_dict': model.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'best_val_accuracy': best_val_accuracy,
+            'id_wandb': id_wandb
+        }
+        torch.save(ckpt, config.CKPT_SAVE_PATH)
+        print(f"Checkpoint saved to {config.CKPT_SAVE_PATH}", ckpt['epoch'])
+        
         log_dict = {}
         log_dict.update(create_log_dict('train', train_loss, train_accuracy, train_precision, train_recall, train_f1))
         log_dict.update(create_log_dict('val', val_loss, val_accuracy, val_precision, val_recall, val_f1))
+            
+        if config.NUM_EPOCHS%config.N_STEP_FIG==0:
+            print('/n### logging visualization...')
+            val_fig_cm = plot_confusion_matrix(val_labels, val_preds, config.LABELS_EMOTION)
+            embeddings, labels = extract_embeddings(model, val_loader, device)
+            labels = [config.LABELS_EMOTION[val] for val in labels]
+            val_fig_embedding = visualize_embeddings(embeddings, labels, method='tsne')
+            val_fig_rsa=perform_rsa(model, val_loader, device)
+            log_dict.update(create_log_dict_fig('val', val_fig_cm, val_fig_embedding, val_fig_rsa))
         
         wandb.log(log_dict, step=epoch)
 
@@ -140,8 +165,9 @@ def run_training(num_epochs, is_sweep=False):
     test_fig_embedding = visualize_embeddings(embeddings, labels, method='tsne')
 
     log_dict_test={}
-    log_dict.update(create_log_dict('test', test_loss, test_accuracy, test_precision, test_recall, test_f1))
-    log_dict.update(create_log_dict_fig('test', test_fig_cm, test_fig_embedding))
+    log_dict_test.update(create_log_dict('test', test_loss, test_accuracy, test_precision, test_recall, test_f1))
+    test_fig_rsa=perform_rsa(model, test_loader, device)
+    log_dict_test.update(create_log_dict_fig('test', test_fig_cm, test_fig_embedding, test_fig_rsa), )
     wandb.log(log_dict_test)
     wandb.finish()
     plt.close()
@@ -154,8 +180,6 @@ def main():
     if len(sys.argv) == 1:
         print(f"\nNo arguments provided. Using default config.")
     config.NUM_EPOCHS=args.epochs    
-    
-    
 
     if args.sweeps > 0:
         matplotlib.use('agg')
