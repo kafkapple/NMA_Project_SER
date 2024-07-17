@@ -1,0 +1,12 @@
+wandb_version: 1
+
+BATCH_SIZE:
+  value: 64
+DROPOUT_RATE:
+  value: 0.4
+MODEL:
+  value: v1
+activation:
+  value: leaky_relu
+lr:
+  value: 0.0005

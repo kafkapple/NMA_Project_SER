@@ -18,7 +18,6 @@ def set_seed(seed):
     np.random.seed(seed)
     torch.manual_seed(seed) # to seed the script globally
 
-
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
         torch.backends.cudnn.deterministic = True
@@ -47,11 +46,13 @@ def main():
     id_wandb=wandb.util.generate_id()
     
     wandb.init(
-        id=id_wandb,
-        project=config.WANDB_PROJECT,
+       # id=id_wandb,
+       # project=config.WANDB_PROJECT,
+       
         #name=config.WANDB_NAME, #
         config=config.CONFIG_DEFAULTS,
-        resume=True
+        resume=False
+        #anonymous='allow', settings=wandb.Settings(_disable_git=True)
     )
     data, labels = preprocess_data(data_dir)
     train_loader, val_loader, test_loader = prepare_dataloaders(data, labels, wandb.config.BATCH_SIZE)
@@ -95,7 +96,10 @@ def main():
     ###### Train model
     print(f'\n##### Training starts.\nInitial epoch:{initial_epoch}\nTotal number of epoch: {config.NUM_EPOCHS}')
     best_val_accuracy = 0
-    
+    for epoch in tqdm(range(initial_epoch, initial_epoch + num_epochs), desc="Epochs"):
+        # 에폭 시작 시간 기록
+        epoch_start_time = time.time()
+
     for epoch in range(initial_epoch, initial_epoch+config.NUM_EPOCHS):#range(num_epochs):
         train_loss, train_accuracy, train_precision, train_recall, train_f1 = train_epoch(model, train_loader, criterion, optimizer, device)
         val_loss, val_accuracy, val_precision, val_recall, val_f1, val_labels, val_preds = evaluate_model(model, val_loader, criterion, device)

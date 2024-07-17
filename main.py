@@ -8,7 +8,7 @@ from config import config
 from data_utils import download_ravdess, preprocess_data, prepare_dataloaders
 from model import EmotionRecognitionModel_v1, EmotionRecognitionModel_v2
 from train_utils import train_model, train_epoch, evaluate_model, load_checkpoint
-from visualization import plot_confusion_matrix, visualize_embeddings, extract_embeddings
+from visualization import plot_confusion_matrix, visualize_embeddings, extract_embeddings,perform_rsa#,
 
 
 def set_seed(seed):
@@ -36,7 +36,7 @@ def main():
         raise Exception("Failed to download or extract the dataset. Terminating execution.")
     
     data, labels = preprocess_data(data_dir)
-    train_loader, val_loader, test_loader = prepare_dataloaders(data, labels)
+    train_loader, val_loader, test_loader = prepare_dataloaders(data, labels, config.BATCH_SIZE)
 
     # Initialize model
     print('\n###### Preparing Model...')
@@ -137,9 +137,11 @@ def main():
             embeddings, labels = extract_embeddings(model, test_loader, device)
             labels = [config.LABELS_EMOTION[val] for val in labels]
             fig_embedding=visualize_embeddings(embeddings, labels, method='tsne')
+            fig_rsa= perform_rsa(model, test_loader, device)
             wandb.log({"validation":{
                 "confusion_matrix": wandb.Image(fig_cm),
-                "embeddings": wandb.Image(fig_embedding)
+                "embeddings": wandb.Image(fig_embedding),
+                "rsa": wandb.Image(fig_rsa)
                 }})
             
     # model = train_model(model, train_loader, val_loader, initial_epoch, config.NUM_EPOCHS, criterion, optimizer, device, id_wandb)
@@ -150,17 +152,22 @@ def main():
 
     # Visualizations
     fig_cm = plot_confusion_matrix(test_labels, test_preds, config.LABELS_EMOTION)
-    wandb.log({
-        "test":{
-            "confusion_matrix": wandb.Image(fig_cm)
-            }})
     
     embeddings, labels = extract_embeddings(model, test_loader, device)
     labels = [config.LABELS_EMOTION[val] for val in labels]
     fig_embedding=visualize_embeddings(embeddings, labels, method='tsne')
+    fig_rsa= perform_rsa(model, test_loader, device)
+    
     wandb.log({
         "test":{
-            "embeddings": wandb.Image(fig_embedding)
+            "loss":test_loss,
+            "accuracy":test_accuracy,
+            "precision":test_precision,
+            "recall":test_recall,
+            "f1":test_f1,
+             "confusion_matrix": wandb.Image(fig_cm),
+            "embeddings": wandb.Image(fig_embedding),
+            "rsa": wandb.Image(fig_rsa)
             }})
 
     wandb.finish()

@@ -1,0 +1,12 @@
+wandb_version: 1
+
+BATCH_SIZE:
+  value: 32
+DROPOUT_RATE:
+  value: 0.6
+MODEL:
+  value: v2
+activation:
+  value: relu
+lr:
+  value: 0.0005
