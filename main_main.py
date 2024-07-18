@@ -62,17 +62,22 @@ def run_training(num_epochs, is_sweep=False):
         raise Exception("Failed to download or extract the dataset. Terminating execution.")
     #### Model loading or start new
     if os.path.exists(config.CKPT_SAVE_PATH):
-        user_input = input("Found existing model. Continue training? (y/n): ").lower()
-        if user_input == 'y':
-            model, optimizer, initial_epoch, best_val_accuracy, id_wandb = load_checkpoint(config.CKPT_SAVE_PATH, model, optimizer, device)
-            print(f"Resuming training from epoch {initial_epoch}. Best val accuracy: {best_val_accuracy:.3f}")
+        if not is_sweep:
+            user_input = input("Found existing model. Continue training? (y/n): ").lower()
+            if user_input == 'y':
+                model, optimizer, initial_epoch, best_val_accuracy, id_wandb = load_checkpoint(config.CKPT_SAVE_PATH, model, optimizer, device)
+                print(f"Resuming training from epoch {initial_epoch}. Best val accuracy: {best_val_accuracy:.3f}")
+            else:
+                config.MODEL_SAVE_PATH = get_new_model_path(config.MODEL_SAVE_PATH)
+                config.CKPT_SAVE_PATH = get_new_model_path(config.CKPT_SAVE_PATH)
+                print(f"Starting new training. New model will be saved as {config.MODEL_SAVE_PATH}")
+                initial_epoch = 1
+                id_wandb=wandb.util.generate_id()
+                print(f'Wandb id generated: {id_wandb}')
         else:
-            config.MODEL_SAVE_PATH = get_new_model_path(config.MODEL_SAVE_PATH)
-            config.CKPT_SAVE_PATH = get_new_model_path(config.CKPT_SAVE_PATH)
-            print(f"Starting new training. New model will be saved as {config.MODEL_SAVE_PATH}")
-            initial_epoch = 1
-            id_wandb=wandb.util.generate_id()
-            print(f'Wandb id generated: {id_wandb}')
+            initial_epoch=1
+            print('#######')
+            
     else:
         print('No trained data.')
         initial_epoch = 1
@@ -81,9 +86,9 @@ def run_training(num_epochs, is_sweep=False):
 
 #### Sweep or not
     if is_sweep:
-        wandb.init(config=config.CONFIG_DEFAULTS, resume=False)
+        wandb.init(config=config.CONFIG_DEFAULTS, resume=False, settings=wandb.Settings(start_method="thread"))
     else:
-        wandb.init(project=config.WANDB_PROJECT, config=config.CONFIG_DEFAULTS)#, resume=False)
+        wandb.init(project=config.WANDB_PROJECT, config=config.CONFIG_DEFAULTS, settings=wandb.Settings(start_method="thread"))#, resume=False)
 
     data, labels = preprocess_data(data_dir)
     train_loader, val_loader, test_loader = prepare_dataloaders(data, labels, wandb.config.BATCH_SIZE)
@@ -183,8 +188,13 @@ def main():
     config.NUM_EPOCHS=args.epochs    
 
     if args.sweeps > 0:
+        print
         matplotlib.use('agg')
-        sweep_id = wandb.sweep(sweep=config.CONFIG_SWEEP, project=config.WANDB_PROJECT)
+        sweep_id="8lad6k0u" #
+        config.WANDB_PROJECT="NMA_Project_SER_sweep_together_v1_e5"
+        sweep_id = f"{config.ENTITY}/{config.WANDB_PROJECT}/{sweep_id}"#wandb.sweep(sweep=config.CONFIG_SWEEP, project=config.WANDB_PROJECT)
+        print(f"\nResume Sweep: entity/project/id: {sweep_id}\n")
+        #sweep_id = wandb.sweep(sweep=config.CONFIG_SWEEP, project=config.WANDB_PROJECT)
         print(f'\nSweep starts. Sweep id: {sweep_id}\nTotal number of sweep: {config.NUM_EPOCHS}\n')
         wandb.agent(sweep_id, function=lambda: run_training(args.epochs, is_sweep=True), count=args.sweeps)
     else:
