@@ -203,6 +203,8 @@ if __name__ == "__main__":
         print(f'\nFirst Sweep starts. Sweep id: {sweep_id}\n')
     else:
         sweep_id="8lad6k0u" #
+        config.WANDB_PROJECT="NMA_Project_SER_sweep_together_v1_e5"
+        
         sweep_id = f"{config.ENTITY}/{config.WANDB_PROJECT}/{sweep_id}"#wandb.sweep(sweep=config.CONFIG_SWEEP, project=config.WANDB_PROJECT)
         print(f"\nResume Sweep: entity/project/id: {sweep_id}\n")
     wandb.agent(sweep_id, function=main, count=config.N_SWEEP)

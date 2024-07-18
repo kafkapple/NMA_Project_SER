@@ -4,7 +4,7 @@ import torch
 import random
 import numpy as np
 import wandb
-from config import config
+from config_main import config
 from data_utils import download_ravdess, preprocess_data, prepare_dataloaders
 from model import EmotionRecognitionModel_v1, EmotionRecognitionModel_v2
 from train_utils import train_model, train_epoch, evaluate_model, load_checkpoint
@@ -152,6 +152,7 @@ def run_training(num_epochs, is_sweep=False):
             val_fig_embedding = visualize_embeddings(embeddings, labels, method='tsne')
             val_fig_rsa=perform_rsa(model, val_loader, device)
             log_dict.update(create_log_dict_fig('val', val_fig_cm, val_fig_embedding, val_fig_rsa))
+            
         
         wandb.log(log_dict, step=epoch)
 

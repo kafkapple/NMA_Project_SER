@@ -24,7 +24,7 @@ class Config:
     BASE_DIR = os.path.join(parent_dir, PROJECT_DIR)
     DATA_DIR = os.path.join(BASE_DIR, 'data')
     DATA_NAME= "RAVDESS_audio_speech"
-    MODEL_NAME=f"wav2vec_{MODEL}_v4"#'wav2vec_v3_1'
+    MODEL_NAME=f"wav2vec_{MODEL}_v5_240717"#'wav2vec_v3_1'
     MODEL_DIR = os.path.join(BASE_DIR, 'model', MODEL_NAME)
     
     MODEL_SAVE_PATH = os.path.join(MODEL_DIR, f'best_model_{MODEL_NAME}.pth')
@@ -36,7 +36,7 @@ class Config:
     }
     
     ####### Wandb config
-    WANDB_PROJECT = f"{PROJECT_DIR}_training_v1_rsa"
+    WANDB_PROJECT = f"{PROJECT_DIR}_training_v2_240717"
     ENTITY="biasdrive-neuromatch"
     WANDB_NAME = MODEL_NAME
     # 2: Define the search space
